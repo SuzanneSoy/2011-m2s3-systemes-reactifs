@@ -1,0 +1,218 @@
+\documentclass[a4paper,french,9pt]{article}
+\usepackage[reset]{geometry}
+\geometry{a4paper, top=2cm, bottom=2.0cm, left=4.4cm, right=4.47cm}
+\usepackage[frenchb]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{multirow}
+\usepackage{tikz}
+\usetikzlibrary{positioning,calc,chains,intersections}
+\def\P{\mathcal{P}}
+\def\GUi{G \cup \{i\}}
+\def\transition#1{\stackrel{#1}{\longrightarrow}}
+\def\Transition#1{\stackrel{#1}{\Longrightarrow}}
+\def\forte{\sim}
+\def\observationnelle{\approx}
+\def\conf{\ \text{conf}\ }
+\DeclareMathOperator{\Tr}{Tr}
+\def\si{\quad\text{si}\quad}
+\let\simule\gtrsim
+\let\estsimulepar\gtrsim
+\begin{document}
+
+\section{Définitions}
+
+\begin{description}
+\item[LTS] (Labeled Transition System = Système de transitions étiquetées) : $$P = \langle\P,A,\rightarrow,P\rangle$$
+  \begin{description}
+  \item[$\P$]: États. $\P = \{P, Q, R, \dots\}$.
+  \item[$A$]: Actions (étiquettes que l'on mettra sur les transitions). $A \subseteq \GUi$. $G$ est l'ensemble des actions observables. $i$
+    est l'action interne que le système peut faire de lui-même.
+  \item[$\rightarrow$]: Transitions. $\rightarrow \in \P\times A\times\P$. $P\transition{a}Q$~: le système se tranforme, passe de $P$ à $Q$
+    en exécutant $a$.
+  \item[$P$]: Nom du LTS, et aussi son premier état (donc $P \in \P$).
+  \end{description}
+\item[Trace]: Ensemble des listes d'actions que l'on peut exécuter. La trace vide est notée $\varepsilon$.
+  \begin{center}
+    \begin{tikzpicture}[node distance=5mm]
+      \node (p) {P};
+      \node[above right= of p] (q) {Q};
+      \node[below right= of p] (r) {R};
+      \node[right= of q] (stop1) {Stop};
+      \node[right= of r] (stop2) {Stop};
+      \draw[->] (p) -- node[above,near start] {a} (q);
+      \draw[->] (p) -- node[below,near start] {a} (r);
+      \draw[->] (q) -- node[above] {b} (stop1);
+      \draw[->] (r) -- node[above] {c} (stop2);
+    \end{tikzpicture}
+  \end{center}
+  $$\Tr(P) = \{\varepsilon, a, ab, ac\}$$
+\item[Chemin]: Si $P\transition{a_1}P_1\transition{a_2}\cdots\transition{a_n}P_n$ où $a_i \in \GUi$, on note $P\transition{t}P_n$ avec $t =
+  a_1; a_2; \dots; a_n$. $(a_3,a_4)$ est un sous-chemin de $P$.
+\item[Exécution] Une exécution partielle de $P$ est un chemin de $P$ partant de l'état initial $P$. Une exécution complète de $P$ est une q
+  exécution partielle de $P$ que l'on ne peut pas compléter (j'ai pas compris là…).
+\item[Chemin observable] On note $P_1\Transition{a}P_2$ avec $a \neq i$ si $P_1\transition{i^*}Q\transition{a}R\transition{i^*}P_2$. $i^*$ q
+  signifie 0 ou plusieurs exécutions de l'action interne.
+  
+  Si $P\Transition{a_1}P_1\Transition{a_2}\cdots\Transition{a_n}P_n$ où $a_i \neq i$, on note $P\Transition{t}P_n$ avec $t = a_1; a_2;
+  \dots; a_n$.
+  
+  $\hat{t}$ est le chemin obtenu en enlevant toutes les actions internes de $t$. Si $P\transition{t}Q$ alors $P\Transition{\hat{t}}Q$.
+\item[Trace observable] Une trace observable de $P$ est une exécution partielle observable.
+\end{description}
+
+\section{LOTOS}
+
+\def\fakerowspace{&&&&\\}
+\hspace{-2.75cm}
+\begin{tabular}{|lllcl|}
+  \hline
+  %
+  \fakerowspace
+  \multirow{1}{2cm}{Action prefix} & \multirow{1}{*}{$;:A\times P \rightarrow P$}
+  & $\text{ACT}$ & $\frac{\vphantom{P\transition{a}P'}}{a;P\transition{a}P}$ & $a \in \GUi$ \\
+  \fakerowspace
+  \hline
+  %
+  \fakerowspace
+  \multirow{3}{2cm}{Choice} & \multirow{3}{*}{$[]:P\times P \rightarrow P$}
+    & $\text{CHOICE}_1$ & $\frac{P\transition{a}P'}{P[]Q\transition{a}P'}$ & $a \in \GUi$ \\
+  \fakerowspace
+  & & $\text{CHOICE}_2$ & $\frac{Q\transition{a}Q'}{P[]Q\transition{a}Q'}$ & $a \in \GUi$ \\
+  \fakerowspace
+  \hline
+  %
+  \fakerowspace
+  \multirow{3}{2cm}{Composition parallèle indépendante} & \multirow{3}{*}{$|||:P\times P \rightarrow P$}
+    & $\text{COM}_1$ & $\frac{P\transition{a}P'}{P|||Q\transition{a}P'|||Q}$ & $a \in \GUi$ \\
+  \fakerowspace
+  & & $\text{COM}_2$ & $\frac{Q\transition{a}Q'}{P|||Q\transition{a}P|||Q'}$ & $a \in \GUi$ \\
+  \fakerowspace
+  \hline
+  %
+  \fakerowspace
+  \multirow{5}{2cm}[-2mm]{Synchro totale} & \multirow{5}{*}[-2mm]{$||:P\times P \rightarrow P$}
+    & $\text{COMP}_1$    & $\frac{P\transition{a}P'\;\wedge\; Q\transition{a}Q'}{P||Q\transition{a}P'||Q'}$ & $a \in \GUi$ \\
+  \fakerowspace
+  & & $\text{COMP}_{i1}$ & $\frac{P\transition{i}P'}{P||Q\transition{i}P'||Q}$ & \\
+  \fakerowspace
+  & & $\text{COMP}_{i2}$ & $\frac{Q\transition{i}Q'}{P||Q\transition{i}P||Q'}$ & \\
+  \fakerowspace
+  \hline
+  %
+  \fakerowspace
+  \multirow{5}{2cm}[-2mm]{Synchro sur un ensemble $S \subseteq$ de portes visibles} & \multirow{5}{*}[-2mm]{$|[S]|:P\times\mathcal{P}(G)\times P \rightarrow P$}
+    & $\text{SYNC}_1$ & $\frac{P\transition{a}P'}{P|[S]|Q\transition{a}P'|[S]|Q}$ & $a \in G, a \not\in S, a \neq i$ \\
+  \fakerowspace
+  & & $\text{SYNC}_2$ & $\frac{P\transition{a}P'}{P|[S]|Q\transition{a}P'|[S]|Q}$ & $a \in G, a \not\in S, a \neq i$ \\
+  \fakerowspace
+  & & $\text{SYNC}_3$ & $\frac{P\transition{a}P'\;\wedge\; Q\transition{a}Q'}{P|[S]|Q\transition{a}P'|[S]|Q'}$ & $a \in S, a \neq i$ \\
+  \fakerowspace
+  \hline
+  %
+  \fakerowspace
+  \multirow{3}{2cm}{Rendre une action invisible} & \multirow{3}{*}{$\text{\small hide}\dots\text{\small{}in}:\mathcal{P}(G)\times P \rightarrow P$}
+    & $\text{HIDE}_1$ & $\frac{P\transition{a}P'}{(\text{\small hide }a\text{\small{} in }P)\transition{i}(\text{\small hide }a\text{\small{} in }P')}$ & $a \in G, a \neq i$ \\
+  \fakerowspace
+  & & $\text{HIDE}_2$ & $\frac{P\transition{i}P'}{(\text{\small hide }a\text{\small{} in }P)\transition{i}(\text{\small hide }a\text{\small{} in }P')}$ & $a \in G, a \neq i$ \\
+  \fakerowspace
+  \hline
+  %
+  \fakerowspace
+  \multirow{1}{2cm}{Renommage} & \multirow{1}{*}{$P[\dots]:P\times G \times G \rightarrow P$}
+  & $\text{REN}$ & $\frac{P[a]\transition{a}P'[a]}{P[p]\transition{b}P'[b]}$ & $\begin{array}{ll}a \in G,& a \neq i\\b \in G,& b \neq i\end{array}$ \\
+  \fakerowspace
+  \hline
+  %
+\end{tabular}
+
+\clearpage
+\section{Comparaison de LTS}
+
+\subsection{Équivalence forte $\forte$}
+
+Def. $P \forte Q\si \forall a \in \GUi,\quad \left(P \transition{a} P'\right) \Rightarrow \left(\exists\, Q \transition{a} Q' \;\wedge\; P' \forte Q'\right)$, et vice versa de $Q$ vers $P$~: $\left(Q \transition{a} Q'\right) \Rightarrow \left(\exists\, P \transition{a} P' \;\wedge\; P' \forte Q'\right)$
+
+En français ça donne~: quand $P$ fait une action, $Q$ sait la faire aussi, et vice versa, donc $Q$ est capable de simuler $P$, et $P$ est
+capable de simuler $Q$. On appelle ça la bisimulation.
+
+Si $P$ évolue en interne, $Q$ \emph{doit} évoluer en interne.
+
+L'équivalence forte permet de tester si deux processus ont le même degré d'indéterminisme externe.
+
+\subsection{Équivalence observationnelle $\observationnelle$}
+
+Def. $P \observationnelle Q\si \forall a \in \GUi,\quad \left(P\transition{a}P'\right) \Rightarrow \left(\exists\,
+  Q\Transition{\hat{a}}Q' \;\wedge\; P' \observationnelle Q'\right)$ et vice vesa de $Q$ vers $P$~: $\left(Q\transition{a}Q'\right)
+\Rightarrow \left(\exists\, P\Transition{\hat{a}}P' \;\wedge\; P' \observationnelle Q'\right)$.
+
+Si $P$ évolue en interne, $Q$ \emph{peut ne pas} évoluer en interne.
+
+Si $P$ fait une action, $Q$ peut faire beaucoup de $\transition{i}$, mais doit faire l'action.
+
+L'équivalence observationnelle ne détecte pas tous les livelock. $P$ et $Q$ sont observationnellement équivalents alors que Q peut refuser
+$b$ indéfiniment et toujours faire i.
+
+$$P\transition{a}\transition{b} \quad\observationnelle\quad Q\transition{a}\tikz[remember picture]{\node[coordinate] (ab) {};}\transition{b}$$
+\begin{tikzpicture}[remember picture, overlay]
+  \node[coordinate,yshift=1mm] (abs) at (ab) {};
+  \draw (abs) edge[->,out=45,in=135,looseness=1,loop,distance=0.8cm,shorten <=1mm, shorten >=1mm] node[fill=white,inner sep=1.5pt] {\scriptsize $i$} (abs);
+\end{tikzpicture}
+
+\subsection{Congruence opérationnelle $=$}
+
+Def. $P=Q \si \forall a \in \GUi,\quad \left(P\transition{a}P'\right) \Rightarrow \left(\exists\, Q\Transition{a}Q'
+  \;\wedge\; P' \observationnelle Q'\right)$ et vice versa de $Q$ vers $P$~: $\left(Q\transition{a}Q'\right) \Rightarrow \left(\exists\,
+  P\Transition{a}P' \;\wedge\; P' \observationnelle Q'\right)$.
+
+La différence avec l'équivalence opérationnelle est le $Q\Transition{a}Q'$ au lieu de $Q\Transition{\hat{a}}Q'$. Il est à noter qu'une fois
+qu'on a vérifié que la première transition n'était pas l'action invisible, on utilise l'équivalence observationnelle.
+
+Cela a pour but d'avoir $\transition{a}\transition{b}\neq\transition{i}\transition{a}\transition{b}$, mais
+$\transition{a}\transition{b}=\transition{a}\transition{i}\transition{b}$.
+
+Cependant, comme pour l'équivalence observationnelle, on ne détecte pas tous les livelock (même exemple que ci-dessus).
+
+
+\subsection{Simulation}
+
+Def. $P \simule Q \si \forall a \in \GUi,\quad \left(Q\transition{a}Q'\right) \Rightarrow \left(\exists\, P\Transition{a}P' \;\wedge\; P'
+  \simule Q'\right)$. On dit \og $P$ simule $Q$\fg.
+
+Attention, la bisimulation $P \forte Q$ n'est pas $\left(P \simule Q \;\wedge\; P \estsimulepar Q\right)$, car dans simul, à la fin on a $P'
+\simule Q'$, alors que dans la bisimulation on a $P' \forte Q'$. La bisimulation $P \forte Q$ est donc une condition plus forte que la
+simulation mutuelle de P et Q $\left(P \simule Q \;\wedge\; P \estsimulepar Q\right)$.
+
+\subsection{Force des comparaisons}
+
+$$ P \forte Q \Rightarrow P = Q \Rightarrow P \observationnelle Q $$
+
+\clearpage
+\subsection{Conformité $\conf$}
+
+Les comparaisons des sections précédentes ne détectent pas tous les livelock, et nécessitent une description complète de la spécification,
+car ces relations sont symmétriques. On cherche donc une relation assymétrique de conformité, $P\conf S$ qui nous permettra de dire que $P$
+est une implantation correcte de $S$.
+
+On écrit $S\text{ must }A\text{ after }t$ pour dire que $S$ doit accepter les actions de l'ensemble $A$ après le chemin $t$.
+
+Def. $Q\text{ must }A\text{ after }t \si \forall Q \Transition{t} Q',\quad \forall a \in A, \quad Q'\transition{a}Q"$.
+
+On écrit $P\text{ may refuse }A\text{ after }t$ pour dire que $P$ peut refuser une des actions de $A$ (ou toutes les actions de $A$, selon
+les définitions) après le chemin $t$.
+
+\def\myfnote{\footnote{Je ne sais pas trop si c'est $\forall A \subseteq G$ ou $\forall A \subseteq \GUi$.}}
+
+$$
+P \conf S\si\forall A \subseteq G\myfnote,\quad S\text{ must }A\text{ after }t \Rightarrow P\text{ must }A\text{ after }t
+$$
+
+En prennant la contraposée, on obtient un test de conformité (équivalent à la définition ci-dessus)~:
+
+$$
+\forall t \in \Tr(S),\quad P\text{ may refuse }A\text{ after }t \Rightarrow S\text{ may refuse }A\text{ after }t
+$$
+
+\end{document}
