@@ -1,0 +1,79 @@
+\documentclass[a4paper,french]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf-8]{inputenc}
+\usepackage[frenchb]{babel}
+\begin{document}
+Documentation LOTOS (Language Of Temporal\footnote{Temporel et non temporisé : ordonnancement et non temps d'exécution} Ordering Specification) :
+\texttt{/usr/local/cadp/doc/pdf/Garavel-89-*} (structures de contrôle).
+Langage LOTOS normalisé ISO en 1989.
+
+Algèbre = ensemble de termes construits par des opérations algébriques.
+\begin{itemize}
+\item Basic LOTOS = algèbres de processus\marginpar{comportement} (CCS + CSP).
+\begin{itemize}
+\item Termes = processus (+ actions)?
+\item Opérateurs = prefix ($;$), choice ($[]$), parallel ($||\ |[]|\  |||$), enable ($>>$)\footnote{«Composition séquentielle de processus». $P >> Q$ exécute $P$ jusqu'à ce que $P$ se termine en déclenchant l'action delta (exit), après quoi on exécute $Q$)}, disable ($[>$)
+\end{itemize}
+\item ACT One = ADT (Abstract Data Type).
+\end{itemize}
+
+% $[>$ : PxP->P
+%        P ->^a P' (Q -/->^a)
+% [> (1) --------------------
+%        P[>Q ->^a P' [> Q
+%
+%             Q ->^a Q'
+%    (2) --------------------
+%           P[>Q ->^a Q'
+
+L'environnment avec lequel le LTS interagit n'a pas connaissance de l'état du LTS.
+
+Le LTS décrit les séquencs d'actions \emph{possibles}.
+
+% SECTION 5
+\section{Comparaisons entre processus}
+
+% . ->^a . ->^b .^0 =^? . ->^a . ->^i . ->^b .^0
+
+Objectif: Véifier les modlèles.
+Def: Vérifier = $Spécification(ou modèle de conception) |=(satisfait) Propriétés$
+S : Spec en LTS
+P : propdans un autre langage (calcul propositionnel, Logique Temporelle Linéaire, Computational Tree Logic, \dots)
+
+Exemple : vérifier que $a$ est toujours suivi de $b$. Que signifie "toujours suivi" ?
+Interprétation possible : (P[a,b,c,d,\dots] |[a,b]| E[a,b]) avec E[a,b]:=a;b;E[a,b] s'exécute sans blocage. Cela signifie que après avoir fait $a$, on pourra \emph{un jour} exécuter $b$.
+
+On distingue la vérification de la validation. Vérif = comparaison entre deux choses exprimées formellment. Validation = s'assurer que le système est bien celui souhaité. «Le système est-il construit correctement ?» vs. «Le système est-il le bon ?»
+
+Nous utiliserons un LTS pour la spec, et un LTS pour la réalisation (moins abstrait).
+
+\subsection{Équivalence forte}% 5.1
+Définition : P et Q sont forement équivalents, ce que l'on note $P~Q$, ssi $\forall \alpha \in G\union{i}$, quel que soit $P ->^\alpha P'$,
+il existe $Q'$ tel que $Q ->^\alpha Q'$ et $P' ~ Q'$, et vice versa (quand Q fait une action, P sait la faire aussi).
+
+cf. Milner 89 Communication and Concurrency, HOARE, C.A.R., Prentice Hall
+    Milner 99 Communicating and Mobile Systems: the Pi-Calculus, Cambridge University Press
+
+P:=a;i;b;stop ~/ (pas fortement eqv) Q:=a;b;stop
+
+%   /-a---b
+% P-           ~    P---a---b
+%   \-a---b
+Q peut "imiter" P.
+
+0 = stop
+P[]0 ~ P
+P|||0 ~ P
+P||0 ~ P
+P[]Q ~ Q[]P
+P|Q ~ Q|P valable pour ||, |||, |[]|
+P[](Q[]R) ~ (P[]Q)[]R
+P[]P ~ P
+
+0 élément neutre pour [] (addition) et || (mult.)
+<P,[],;> a une structure de monoïde.
+
+a;(P[]Q) ~/ (a;P) [] (a;Q)
+%Si on prend P:=b;0 et Q:=0, on a ". ->^a 0 ->^b -> 0" à gauche et . (/->^a 0) \->^a . ->^b 0
+
+\end{document}
