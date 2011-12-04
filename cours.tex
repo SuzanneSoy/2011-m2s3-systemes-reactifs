@@ -6,17 +6,21 @@
 \usepackage[T1]{fontenc}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{centernot}
 \usepackage{multirow}
 \usepackage{tikz}
 \usetikzlibrary{positioning,calc,chains,intersections}
 \def\P{\mathcal{P}}
 \def\GUi{G \cup \{i\}}
+\def\nottransition#1{\stackrel{#1}{\centernot\longrightarrow}}
 \def\transition#1{\stackrel{#1}{\longrightarrow}}
 \def\Transition#1{\stackrel{#1}{\Longrightarrow}}
 \def\forte{\sim}
 \def\observationnelle{\approx}
 \def\conf{\ \text{conf}\ }
 \DeclareMathOperator{\Tr}{Tr}
+\DeclareMathOperator{\Acc}{Acc}
+\DeclareMathOperator{\Ref}{Ref}
 \def\si{\quad\text{si}\quad}
 \let\simule\gtrsim
 \let\estsimulepar\gtrsim
@@ -196,15 +200,25 @@ Les comparaisons des sections précédentes ne détectent pas tous les livelock,
 car ces relations sont symmétriques. On cherche donc une relation assymétrique de conformité, $P\conf S$ qui nous permettra de dire que $P$
 est une implantation correcte de $S$.
 
-On écrit $S\text{ must }A\text{ after }t$ pour dire que $S$ doit accepter les actions de l'ensemble $A$ après le chemin $t$.
+\begin{description}
+\item[must] On écrit $S\text{ must }A\text{ after }t$ pour dire que $S$ doit accepter les actions de l'ensemble $A$ après le chemin $t$.
 
-Def. $Q\text{ must }A\text{ after }t \si \forall Q \Transition{t} Q',\quad \forall a \in A, \quad Q'\transition{a}Q"$.
+  Def. $Q\text{ must }A\text{ after }t \si \forall Q \Transition{t} Q',\quad \forall a \in A, \quad Q'\transition{a}Q"$.
 
-On écrit $P\text{ may refuse }A\text{ after }t$ pour dire que $P$ peut refuser une des actions de $A$ (ou toutes les actions de $A$, selon
-les définitions) après le chemin $t$.
+  $\Acc(P,t)$ est l'ensemble des actions que $P$ doit accepter après $t$.
+  
+  Def. $\Acc(P,t) = \left\{X \subseteq G | \exists P', P \Transition{t} P', \forall x \in X, P' \transition{x} P"\right\} $
+\item[may refuse] On écrit $P\text{ may refuse }A\text{ after }t$ pour dire que $P$ peut refuser une des actions de $A$\footnote{\dots ou
+    toutes les actions de $A$, selon d'autres définitions, mais pas ici.} après le chemin $t$.
 
-\def\myfnote{\footnote{Je ne sais pas trop si c'est $\forall A \subseteq G$ ou $\forall A \subseteq \GUi$.}}
+  Def. $Q\text{ may refuse }A\text{ after }t \si \forall Q \Transition{t} Q',\quad \exists a \in A, \quad Q'\nottransition{a}$.
+  
+  $\Ref(P,t)$ est l'ensemble des actions que $P$ peut (doit?) refuser après $t$.
+  
+  Def. $\Ref(P,t) = \left\{X \subseteq G | \exists P', P \Transition{t} P', \forall x \in X, P' \nottransition{x}\right\} $
+\end{description}
 
+\def\myfnote{\footnote{Je ne sais pas trop si c'est $\forall A \subseteq G$ ou $\forall A \subseteq \GUi$.}}%
 $$
 P \conf S\si\forall A \subseteq G\myfnote,\quad S\text{ must }A\text{ after }t \Rightarrow P\text{ must }A\text{ after }t
 $$
@@ -212,7 +226,94 @@ $$
 En prennant la contraposée, on obtient un test de conformité (équivalent à la définition ci-dessus)~:
 
 $$
-\forall t \in \Tr(S),\quad P\text{ may refuse }A\text{ after }t \Rightarrow S\text{ may refuse }A\text{ after }t
+P \conf S\si\forall t \in \Tr(S),\quad P\text{ may refuse }A\text{ after }t \Rightarrow S\text{ may refuse }A\text{ after }t
 $$
+
+Autrement dit,
+
+$$
+P \conf S\si\forall t \in \Tr(S),\quad \Ref(P,t) \subseteq \Ref(S,t)
+$$
+
+Encore une formulation~: $\forall p, p \in \text{vivacité}(S) \Rightarrow p \in \text{vivacité}(P)$, c'est-à-dire $P$ préserve les
+propriétés de vivacité de $S$, c'est-à-dire $S\text{ doit accepter }A\text{ après }t \Rightarrow P\text{ doit accepter }A\text{ après }t$,
+c'est-à-dire $P \conf S$ (P conforme à S).
+
+Par rapport aux autres relations (attention, ce sont des implications, pas forcément vraies dans l'autre sens)~:
+\begin{gather*}
+  P = Q \Rightarrow P \conf Q \;\wedge\; Q \conf P\\
+  P = Q \Rightarrow \Tr(P) = \Tr(Q)\\
+\end{gather*}
+
+\subsection{En français…}
+
+$P\conf Q$ signifie~:
+\begin{itemize}
+\item P est plus déterministe que Q
+\item P se bloque moins souvent que Q
+\item P refuse moins souvent que Q
+\end{itemize}
+
+\section{Raffine}
+
+\begin{gather*}
+  S_1\text{ raffine } S_0\si \forall I \in \text{ Implémentations},\quad \left(I \conf S_1 \Rightarrow I \conf S_0\right)\\
+  \text{red} = \conf \cap \subseteq_{\Tr}\\
+  \text{ext} = \conf \cap \supseteq_{\Tr}
+\end{gather*}
+
+\begin{figure}
+  \centering
+  \begin{tikzpicture}[scale=0.5]
+    \draw (0,0) circle (6);
+    \node at (0,-4) {$\conf$};
+    \draw (-1.5,1) circle (2);
+    \node at (-2.5,1) {red};
+    \draw (1.5,1) circle (2);
+    \node at (2.5,1) {ext};
+    \draw (1.5,1) circle (3);
+    \draw (1.5,-1.5) -- (6,-5);
+    \node[anchor=west] at (6,-5) {confrest = raffinement};
+    \draw (0,1) -- (6,-3);
+    \node[anchor=west] at (6,-3) {te = équivalence de test};
+  \end{tikzpicture}
+\end{figure}
+
+\section{Autres notes}
+
+\begin{description}
+\item[Vivacité] L'airbag \emph{doit} se déclencher en cas de choc.
+\item[Sûreté] Les portes \emph{ne doivent pas} s'ouvrir si la cabine d'ascenceur n'est pas là.
+\end{description}
+
+Principe d'\emph{équité}~: «Une action qui se propose infiniment souvent finira par être acceptée».
+
+\section{Exemples de LTS}
+
+\begin{figure}[h]
+  \centering
+  \begin{tikzpicture}[node distance=5mm]
+    \node (b0) {$B_0$};
+    \node[below=of b0] (b1) {$B_1$};
+    \node[below=of b1] (b2) {$B_2$};
+    \node[below=of b2] (b1p) {$B_1'$};
+    \node[below=of b1p] (b2p) {$B_2'$};
+    \node[at=(b0), xshift=1.5cm, coordinate] (b0r) {};
+    
+    \draw[->] (b0) -- node[right] {$\text{inp}_1$} (b1);
+    \draw[->] (b1) -- node[right] {$\text{inp}_2$} (b2);
+    \draw[->] (b2) -- node[right] {$\text{outp}_1$} (b1p);
+    \draw[->] (b1p) -- node[right] {$\text{inp}_1$} (b2p);
+    
+    \draw[->] (b1) edge[bend left] node[left] {$\text{outp}_1$} (b0);
+    \draw[->] (b2p) edge[bend left] node[left] {$\text{outp}_2$} (b1);
+
+    \draw[->] (b1p) -| node[below] {$\text{outp}_2$} (b0r) -- (b0);
+    % \draw[->] (p) -- node[right,near start] {a} (r);
+    % \draw[->] (q) -- node[above] {b} (stop1);
+    % \draw[->] (r) -- node[above] {c} (stop2);
+  \end{tikzpicture}
+  \caption{File d'attente à deux places}
+\end{figure}
 
 \end{document}
