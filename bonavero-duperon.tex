@@ -1,0 +1,42 @@
+\documentclass[a4paper,french,9pt]{article}
+\usepackage[reset]{geometry}
+\geometry{a4paper, top=2cm, bottom=2.0cm, left=4.4cm, right=4.47cm}
+\usepackage[frenchb]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+%\usepackage{centernot}
+\usepackage{multirow}
+\usepackage{tikz}
+\usetikzlibrary{positioning,calc,chains,intersections}
+\def\P{\mathcal{P}}
+\def\GUi{G \cup \{i\}}
+\def\nottransition#1{\stackrel{#1}{\not\longrightarrow}}%\centernot\longrightarrow}}
+\def\transition#1{\stackrel{#1}{\longrightarrow}}
+\def\Transition#1{\stackrel{#1}{\Longrightarrow}}
+\def\forte{\sim}
+\def\observationnelle{\approx}
+\def\conf{\ \text{conf}\ }
+\DeclareMathOperator{\Tr}{Tr}
+\DeclareMathOperator{\Acc}{Acc}
+\DeclareMathOperator{\Ref}{Ref}
+\def\si{\quad\text{si}\quad}
+\let\simule\gtrsim
+\let\estsimulepar\gtrsim
+\begin{document}
+
+\section{Files d'attente et équivalences}
+\subsection{$B2err\simule B1$}
+
+\begin{itemize}
+\item $B1\transition{inp} outp;B1$, et il existe $B2err\transition{inp}outp;B2err$
+\item $outp;B1\transition{outp}B1$, et il existe $outp;B2err\transition{outp}B2err$
+\item et on retourne sur $B1$ et $B2err$.
+\end{itemize}
+
+\subsection{$B2err\ \neg\conf B1$}
+$B2err$ n'est pas conforme à $B1$ car $Ref(B2err, inp) = \{\{inp\}, \{outp\}\}$, alors que $Ref(B1,inp) = \{\{outp\}\}$,
+et donc on n'a pas $Ref(B2err, inp) \subseteq Ref(B1, inp)$.
+
+\end{document}
