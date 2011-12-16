@@ -1,6 +1,6 @@
-\documentclass[a4paper,french,9pt]{article}
-\usepackage[reset]{geometry}
-\geometry{a4paper, top=2cm, bottom=2.0cm, left=4.4cm, right=4.47cm}
+\documentclass[a4paper,french,12pt]{article}
+\usepackage{geometry}
+\geometry{a4paper, top=2cm, bottom=2.0cm, left=2.4cm, right=2.47cm}
 \usepackage[frenchb]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -10,7 +10,7 @@
 %\usepackage{centernot}
 \usepackage{multirow}
 \usepackage{tikz}
-\usetikzlibrary{positioning,calc,chains,intersections}
+\usetikzlibrary{positioning,calc,chains}
 \def\P{\mathcal{P}}
 \def\GUi{G \cup \{i\}}
 \def\nottransition#1{\stackrel{#1}{\not\longrightarrow}}%\centernot\longrightarrow}}
@@ -24,16 +24,25 @@
 \DeclareMathOperator{\Ref}{Ref}
 \def\si{\quad\text{si}\quad}
 \let\simule\gtrsim
+\let\simuleobs\gtrapprox
 \let\estsimulepar\gtrsim
 \begin{document}
 
 \section{Files d'attente et équivalences}
 \subsection{$B2err\simule B1$}
 
+$B2err$ simule $B1$ car~:
 \begin{itemize}
-\item $B1\transition{inp} outp;B1$, et il existe $B2err\transition{inp}outp;B2err$
-\item $outp;B1\transition{outp}B1$, et il existe $outp;B2err\transition{outp}B2err$
-\item et on retourne sur $B1$ et $B2err$.
+\item $B2err \simule B1$~:
+  \begin{itemize}
+  \item $B1\transition{inp} outp;B1$, et il existe $B2err\transition{inp}outp;B2err$.
+  \item Il faut donc que $outp;B2err \simule outp;B1$.
+  \end{itemize}
+\item $outp;B2err \simule outp;B1$~:
+  \begin{itemize}
+  \item $outp;B1\transition{outp}B1$, et il existe $outp;B2err\transition{outp}B2err$.
+  \item Il faut donc que $B2err \simule B1$, ce qui est notre premier point.
+  \end{itemize}
 \end{itemize}
 
 \subsection{$\neg\ B2err\conf B1$}
@@ -61,5 +70,110 @@ $B2par$ respecte la spécification $B_20$~:
   un message, et il ne pourra donc pas y avoir plus de deux messages
   dans la file.
 \end{enumerate}
+
+\subsection{$B2seq \observationnelle B2par$}
+
+{\raggedright
+  $B2seq$ et $B2par$ sont observationnellement équivalents car~:
+  \begin{itemize}
+  \item $B2s \observationnelle B2par$~:
+    \begin{itemize}
+    \item $B2s\transition{inp} B21$,
+      et il existe $B2par \Transition{\hat{inp}} (i;B1[inp,i] \ |[i]|\ B1[i,outp])$
+      et $B2par \Transition{\hat{inp}} (B1[inp,i] \ |[i]|\ outp;B1[i,outp])$.
+    \item Dans l'autre sens,
+      $B2par \transition{inp} (i;B1[inp,i] \ |[i]|\ B1[i,outp])$
+      et il existe $B2s\transition{inp} B21$.
+    \item Il faut donc que $B21 \observationnelle (i;B1[inp,i] \ |[i]|\ B1[i,outp])$.
+    \end{itemize}
+  \item $B21 \observationnelle (i;B1[inp,i] \ |[i]|\ B1[i,outp])$~:
+    \begin{itemize}
+    \item $B21 \transition{inp} outp;B21$,
+      et il existe
+      $(i;B1[inp,i] \ |[i]|\  B1[i,outp]) \Transition{\hat{inp}} (i;B1[inp,i] \ |[i]|\ outp;B1[i,outp])$
+    \item $B21 \transition{outp} B2s$, et
+      et il existe
+      $(i;B1[inp,i] \ |[i]|\  B1[i,outp]) \Transition{\hat{outp}} (B1[inp,i] \ |[i]|\ B1[i,outp])$,
+      autrement dit
+      $(i;B1[inp,i] \ |[i]|\  B1[i,outp]) \Transition{\hat{outp}} B2par$
+    \item Dans l'autre sens,
+      $(i;B1[inp,i] \ |[i]|\ B1[i,outp]) \transition{i} (B1[inp,i] \ |[i]|\ outp;B1[i,outp])$,
+      mais comme on $\hat{i}$ est le chemin vide, on n'aura rien à vérifier sur $B21$.
+    \item Il faut donc que $outp;B21 \observationnelle (i;B1[inp,i] \ |[i]|\ outp;B1[i,outp])$,
+      et que $B2s \observationnelle B2par$. Cette deuxième condition est en fait notre premier point.
+    \end{itemize}
+  \item $outp;B21 \observationnelle (i;B1[inp,i] \ |[i]|\ outp;B1[i,outp])$~:
+    \begin{itemize}
+    \item $outp;B21 \transition{outp}B21$,
+      et il existe
+      $(i;B1[inp,i] \ |[i]|\ outp;B1[i,outp]) \Transition{\hat{outp}} (i;B1[inp,i] \ |[i]|\ B1[i,outp])$.
+    \item Il faut donc que $B21 \observationnelle (i;B1[inp,i] \ |[i]|\ B1[i,outp])$, ce qui est notre deuxième point.
+    \end{itemize}
+  \end{itemize}
+}
+
+\subsection{$B2ent = B2par$}
+
+Étant donné que $B2ent$ et $B2par$ ne commencent pas par l'action
+interne, tester leur égalité au sens de la congruence observationnelle
+revient à tester s'ils sont observationnellement équivalents.
+
+On applique donc la même méthode que dans la section précédente, avec
+les équivalences suivantes~:
+
+{\raggedright
+  \begin{itemize}
+  \item Pour que $B2ent = B2par$, il faut qu'après $inp$ (la seule
+    action que les systèmes peuvent exécuter dans leurs états respectifs),
+    $(outp;B1[inp;outp] ||| B1[inp;outp]) \observationnelle (i;B1[inp;i]\ |[i]|\ B1[i,outp])$.
+  \item Pour cela, il faut qu'après $outp$,
+    $(B1[inp;outp] ||| B1[inp;outp]) \observationnelle (B1[inp;i]\ |[i]|\ B1[i,outp])$,
+    autrement dit $B2ent = B2par$, ce qui est une condition plus faible que le premier point.
+
+    Il faut aussi qu'après $inp$,
+    $(outp;B1[inp;outp] ||| outp;B1[inp;outp]) \observationnelle (i;B1[inp;i]\ |[i]|\ outp;B1[i,outp])$.
+    
+    Dans l'autre sens, on peut ignorer ce qui se passe après le $i$ de
+    $(i;B1[inp;i]\ |[i]|\ B1[i,outp])$, car $\hat{i}$ est le chemin vide,
+    donc pas de conditions sur $(outp;B1[inp;outp] ||| B1[inp;outp])$.
+  \item Occupons-nous de
+    $(outp;B1[inp;outp] ||| outp;B1[inp;outp]) \observationnelle (i;B1[inp;i]\ |[i]|\ outp;B1[i,outp])$.
+    Dans ces états, les systèmes ne peuvent faire qu'$outp$. Il faut donc qu'après $outp$,
+    $(outp;B1[inp;outp] ||| B1[inp;outp]) \observationnelle (i;B1[inp;i]\ |[i]|\ B1[i,outp])$,
+    ce qui correspond au deuxième point.
+  \end{itemize}
+}
+
+\subsection{$B2par \simuleobs B1$}
+
+$B2par$ simule observationnellement $B1$ car~:
+
+\begin{itemize}
+\item $B1\transition{inp}outp;B1$, et il existe
+  $B2par\Transition{\hat{inp}}(i;B1[inp,i]\ |[i]| B1[i;outp])$ et
+  $B2par\Transition{\hat{inp}}(B1[inp,i]\ |[i]| outp;B1[i;outp])$.
+  Il suffit donc que soit $(i;B1[inp,i]\ |[i]| B1[i;outp]) \simuleobs outp;B1$,
+  soit $(B1[inp,i]\ |[i]| outp;B1[i;outp]) \simuleobs outp;B1$. On prend
+\item On prend cette deuxième possibilité.
+  $outp;B1 \transition{outp} B1$, et il existe
+  $(B1[inp,i]\ |[i]| outp;B1[i;outp])\Transition{\hat{outp}}(B1[inp,i]\ |[i]| B1[i;outp])$,
+  autrement dit
+  $(B1[inp,i]\ |[i]| outp;B1[i;outp])\Transition{\hat{outp}}B2par$, notre premier point.
+\end{itemize}
+
+\subsection{$\not B2par \conf B1$}
+
+Pour que $B2par$ soit conforme à $B1$, car pour toute trace $t$ de $B1$,
+$\Acc(B2par) \subset\subset \Ref(B1)$.
+
+\begin{itemize}
+\item Pour la trace $\emptyset$, $\Acc(B2par) = \Acc(B1) = \{\{inp\}\}$.
+\item Pour la trace $inp$, $\Acc(B2par) = \{\{\}, \{inp,outp\}\}$, mais $\Acc(B1) = \{\{outp\}\}$.
+\item Pour la trace $inp;outp$, on est revenu aux mêmes états que la trace $\emptyset$.
+\end{itemize}
+Pour le point 2 $\forall X \in \{\{\}, \{inp,outp\}\},\quad \{outp\} \not\subseteq X$, et donc $\neg(B2par \conf B1)$
+
+\section{Exercice de l'atelier}
+
 
 \end{document}
