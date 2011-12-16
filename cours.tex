@@ -107,7 +107,7 @@
   \hline
   %
   \fakerowspace
-  \multirow{5}{2cm}[-2mm]{Synchro sur un ensemble $S \subseteq$ de portes visibles} & \multirow{5}{*}[-2mm]{$|[S]|:P\times\mathcal{P}(G)\times P \rightarrow P$}
+  \multirow{5}{2cm}[-2mm]{Synchro sur un ensemble $S \subseteq G$ de portes visibles} & \multirow{5}{*}[-2mm]{$|[S]|:P\times\mathcal{P}(G)\times P \rightarrow P$}
     & $\text{SYNC}_1$ & $\frac{P\transition{a}P'}{P|[S]|Q\transition{a}P'|[S]|Q}$ & $a \in G, a \not\in S, a \neq i$ \\
   \fakerowspace
   & & $\text{SYNC}_2$ & $\frac{P\transition{a}P'}{P|[S]|Q\transition{a}P'|[S]|Q}$ & $a \in G, a \not\in S, a \neq i$ \\
@@ -182,7 +182,7 @@ Cependant, comme pour l'équivalence observationnelle, on ne détecte pas tous l
 
 \subsection{Simulation}
 
-Def. $P \simule Q \si \forall a \in \GUi,\quad \left(Q\transition{a}Q'\right) \Rightarrow \left(\exists\, P\Transition{a}P' \;\wedge\; P'
+Def. $P \simule Q \si \forall a \in \GUi,\quad \left(Q\transition{a}Q'\right) \Rightarrow \left(\exists\, P\transition{a}P' \;\wedge\; P'
   \simule Q'\right)$. On dit \og $P$ simule $Q$\fg.
 
 Attention, la bisimulation $P \forte Q$ n'est pas $\left(P \simule Q \;\wedge\; P \estsimulepar Q\right)$, car dans simul, à la fin on a $P'
