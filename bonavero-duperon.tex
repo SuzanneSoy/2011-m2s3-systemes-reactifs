@@ -6,6 +6,7 @@
 \usepackage[T1]{fontenc}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{enumerate}
 %\usepackage{centernot}
 \usepackage{multirow}
 \usepackage{tikz}
@@ -35,8 +36,30 @@
 \item et on retourne sur $B1$ et $B2err$.
 \end{itemize}
 
-\subsection{$B2err\ \neg\conf B1$}
+\subsection{$\neg\ B2err\conf B1$}
 $B2err$ n'est pas conforme à $B1$ car $Ref(B2err, inp) = \{\{inp\}, \{outp\}\}$, alors que $Ref(B1,inp) = \{\{outp\}\}$,
 et donc on n'a pas $Ref(B2err, inp) \subseteq Ref(B1, inp)$.
+
+\subsection{$B2par$ respecte-t-il la spécification $B_20$ ?}
+$B2par$ respecte la spécification $B_20$~:
+\begin{enumerate}[i)]
+\item Un message émis a toujours été reçu : pour qu'un message soit
+  émis par la porte $outp$ du $B1$ de droite, il faut qu'il ait été
+  reçu par la porte $mid$ du $B1$ de droite, synchronisé sur la porte
+  $mid$ du $B1$ de gauche. Pour que le message soit émis sur la porte
+  $mid$ du $B1$ de gauche, il faut qu'il ait au préalable été reçu sur
+  la porte $inp$ du $B1$ de gauche.
+\item Lorsqu'un $B1$ reçoit un message, il refuse les $inp$ jusqu'à ce
+  qu'il ait effectué un $outp$. Comme la porte $outp$ du $B1$ de
+  gauche est synchronisée sur la porte $inp$ du $B1$ de droite, cela
+  signifie que si les deux $B1$ «contiennent» un message, celui de
+  droite n'accepera pas d'$inp$ tant qu'il n'aura pas effectué
+  d'$outp$, et en cascade, celui de gauche ne pourra pas faire
+  d'$outp$ tant que celui de droite n'aura pas été «vidé», et donc
+  celui de gauche refusera les $inp$. On ne pourra donc pas effectuer
+  un $inp$ sur le $B1$ de gauche tant que les deux $B1$ «contiendront»
+  un message, et il ne pourra donc pas y avoir plus de deux messages
+  dans la file.
+\end{enumerate}
 
 \end{document}
