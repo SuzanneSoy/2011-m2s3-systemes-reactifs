@@ -9,6 +9,7 @@
 \usepackage{enumerate}
 %\usepackage{centernot}
 \usepackage{multirow}
+\usepackage{graphicx}
 \usepackage{tikz}
 \usetikzlibrary{positioning,calc,chains}
 \def\P{\mathcal{P}}
@@ -175,5 +176,51 @@ Pour le point 2 $\forall X \in \{\{\}, \{inp,outp\}\},\quad \{outp\} \not\subset
 
 \section{Exercice de l'atelier}
 
+\subsection{Question 1}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=15cm]{question1}
+\end{figure}
+
+\subsection{Question 2}
+
+\begin{verbatim}
+Maillet[prendM,poseM] := prendM;MailletOcc[prendM,poseM]
+MailletOcc[prendM,poseM] := poseM;Maillet[prendM,poseM]
+\end{verbatim}
+
+\subsection{Question 3}
+
+\begin{verbatim}
+UtiliseMarteau[ent,sortie,prend,pose,prendM,poseM](travail:TRAVAIL) :=
+  prend;sortie!fait(travail);pose;
+  Ouvrier[ent,sortie,prend,pose,prendM,poseM]
+\end{verbatim}
+
+\begin{verbatim}
+UtiliseMaillet[ent,sortie,prend,pose,prendM,poseM](travail:TRAVAIL) :=
+  prendM;sortie!fait(travail);poseM;
+  Ouvrier[ent,sortie,prend,pose,prendM,poseM]
+\end{verbatim}
+
+\begin{verbatim}
+Commence[ent,sortie,prend,pose,prendM,poseM](travail:TRAVAIL) :=
+  [facile(travail)] ->
+    sortie!fait(travail);
+    Ouvrier[ent,sortie,prend,pose,prendM,poseM]
+  []
+  [difficile(travail)] ->
+    UtiliseMarteau[ent,sortie,prend,pose,prendM,poseM](travail)
+  []
+  [(not(facile(travail)) and not(difficile(travail)))] ->
+    UtiliseOutil[ent,sortie,prend,pose,prendM,poseM](travail)
+\end{verbatim}
+
+\begin{verbatim}
+Ouvrier[ent,sortie,prend,pose,prendM,poseM] :=
+  ent?travail:TRAVAIL;
+  Commence[ent,sortie,prend,pose,prendM,poseM](travail)
+\end{verbatim}
 
 \end{document}
