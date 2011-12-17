@@ -7,14 +7,14 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{enumerate}
-%\usepackage{centernot}
+\usepackage{centernot}
 \usepackage{multirow}
 \usepackage{graphicx}
 \usepackage{tikz}
 \usetikzlibrary{positioning,calc,chains}
 \def\P{\mathcal{P}}
 \def\GUi{G \cup \{i\}}
-\def\nottransition#1{\stackrel{#1}{\not\longrightarrow}}%\centernot\longrightarrow}}
+\def\nottransition#1{\stackrel{#1}{\centernot\longrightarrow}}
 \def\transition#1{\stackrel{#1}{\longrightarrow}}
 \def\Transition#1{\stackrel{#1}{\Longrightarrow}}
 \def\forte{\sim}
@@ -222,5 +222,92 @@ Ouvrier[ent,sortie,prend,pose,prendM,poseM] :=
   ent?travail:TRAVAIL;
   Commence[ent,sortie,prend,pose,prendM,poseM](travail)
 \end{verbatim}
+
+\begin{verbatim}
+Atelier[ent,sortie] :=
+  hide prend,pose,prendM,poseM in
+    (
+      (
+        Marteau[prend,pose]
+        |||
+        Maillet[prendM,poseM]
+      )
+      |[prend,pose,prendM,poseM]|
+      (
+        Ouvrier[ent,sortie,prend,pose,prendM,poseM]
+        |||
+        Ouvrier[ent,sortie,prend,pose,prendM,poseM]
+      )
+    )
+\end{verbatim}
+
+\subsection{Question 4}
+
+Nécessite l'outil \verb!casear!.
+
+\subsection{Question 5}
+
+\begin{verbatim}
+AtelierV[ent,sortie] :=
+  hide e,s in
+    Verificateur[ent,sortie,e,s]
+    |[e,s]|
+    Atelier[e,s]
+\end{verbatim}
+
+La composition parallèle générale synchronisant les ouvriers et le
+vérificateur est la synchronisation sur l'ensemble de portes
+$\{ent,sortie\}$ de l'atelier sans vérificateur.
+
+On place le vérificateur «entre» les ouvriers et l'environnement~: Si
+un travail est mal fait, le vérificateur le défait et le repasse à
+l'entrée des ouvriers, sinon, il l'envoie vers la sortie de
+l'environnement. À tout moment, il peut récupérer du travail depuis
+l'environnement, et le passer aux ouvriers. Nous avons choisi de ne
+pas limiter le nombre de fois que le vérificateur peut laisser les
+ouvriers obtenir du travail depuis l'environnement, puisque nous ne
+savons pas combien de travaux peuvent être sur les tapis roulants
+$ent$ et $sortie$ sans que le vérificateur y ait encore eu accès.
+
+\begin{verbatim}
+Verificateur[ent,sortie,e,s] :=
+  (
+    s?produit:PRODUIT;
+    [not(correct(produit))] ->
+      e!defait(produit);Verificateur[ent,sortie,e,s]
+    []
+    [correct(produit)] ->
+      sortie!produit;Verificateur[ent,sortie,e,s]
+  )
+  []
+  (
+    ent?travail:TRAVAIL;
+    e!travail;
+    Verificateur[ent,sortie,e,s]
+  )
+\end{verbatim}
+
+\subsection{Question 6}
+
+$Assemble$ n'est pas observationnellement équivalent à $Atelier$, car
+après avoir exécuté l'action $ent$, $Atelier$ peut encore exécuter
+$ent$ (puisqu'il y a deux ouvriers, qui peuvent accepter deux
+travaux), tandis que $Assemble$ ne pourra exécuter que $sortie$.
+
+{\raggedright
+  \begin{itemize}
+  \item $Atelier[\dots] \transition{ent} (\dots) \ |[\dots]|\ (Commence[\dots] ||| Ouvrier[\dots])$,
+    et il existe
+    $Assemble[\dots] \transition{ent} Assembler[\dots]$. Il faudrait que 
+    $(\dots) \ |[\dots]|\ (Commence[\dots] ||| Ouvrier[\dots]) \observationnelle Assembler[\dots]$.
+  \item Mais
+    $(\dots) \ |[\dots]|\ (Commence[\dots] ||| Ouvrier[\dots]) \not\observationnelle Assembler[\dots]$
+    car $(\dots) \ |[\dots]|\ (Commence[\dots] ||| Ouvrier[\dots]) \transition{ent} (\dots) \ |[\dots]|\ (Commence[\dots] ||| Commence[\dots])$
+    tandis que $Assembler[\dots] \nottransition{ent}$.
+  \end{itemize}
+}
+\subsection{Question 7}
+
+Nécessite l'outil \verb!aldebaran!.
 
 \end{document}
